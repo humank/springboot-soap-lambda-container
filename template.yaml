@@ -20,7 +20,7 @@ Resources:
         Variables:
           RUST_LOG: info
           READINESS_CHECK_PATH: /healthz
-          REMOVE_BASE_PATH: /v1
+          # REMOVE_BASE_PATH: /v1
       AutoPublishAlias: live
       DeploymentPreference:
         Type: AllAtOnce
@@ -30,15 +30,15 @@ Resources:
         Root:
           Type: HttpApi
           Properties:
-            Path: /v1
+            Path: /
             Method: ANY
         Country:
           Type: HttpApi
           Properties:
-            Path: /v1/{proxy+}
+            Path: /{proxy+}
             Method: ANY
     Metadata:
-      DockerTag: java8.al2-maven-v1
+      DockerTag: java17.al2-maven-v1
       DockerContext: ./app
       Dockerfile: Dockerfile
 
@@ -75,4 +75,4 @@ Resources:
 Outputs:
   SoapGetCountryApi:
     Description: "API Gateway endpoint URL for Prod stage for Soap API function"
-    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/v1/country"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/ws"
