@@ -5,6 +5,8 @@ app/target/
 
 gradle
 
+.aws-sam
+
 ### IntelliJ IDEA ###
 .idea/**
 .idea/modules.xml
