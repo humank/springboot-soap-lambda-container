@@ -9,4 +9,4 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.8.1 /lambda-adapter /opt
 EXPOSE 8080
 WORKDIR /opt
 COPY --from=build-image /task/target/producing-web-service-initial-0.0.1-SNAPSHOT.jar /opt
-CMD ["java", "-jar", "producing-web-service-initial-0.0.1-SNAPSHOT.jar.jar"]
+CMD ["java", "-jar", "producing-web-service-initial-0.0.1-SNAPSHOT.jar"]

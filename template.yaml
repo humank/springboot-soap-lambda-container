@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-app
+
+  Sample SAM Template for sam-app
+
+Globals:
+  Function:
+    Timeout: 300
+
+Resources:
+  SoapFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 2048
+      Tracing: Active
+      Environment:
+        Variables:
+          RUST_LOG: info
+          READINESS_CHECK_PATH: /healthz
+          REMOVE_BASE_PATH: /v1
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
+      Events:
+        Root:
+          Type: HttpApi
+          Properties:
+            Path: /v1
+            Method: ANY
+        Country:
+          Type: HttpApi
+          Properties:
+            Path: /v1/{proxy+}
+            Method: ANY
+    Metadata:
+      DockerTag: java8.al2-maven-v1
+      DockerContext: ./app
+      Dockerfile: Dockerfile
+
+  MyScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 100
+      MinCapacity: 1
+      ResourceId: !Sub function:${SoapFunction}:live # You need to specify an alis or version here
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/lambda.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_LambdaConcurrency
+      ScalableDimension: lambda:function:ProvisionedConcurrency
+      ServiceNamespace: lambda
+    DependsOn: SoapFunctionAliaslive # This is your function logical ID + "Alias" + what you use for AutoPublishAlias
+
+  MyTargetTrackingScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: utilization
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref MyScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 0.70 # Any value between 0 and 1 can be used here
+        CustomizedMetricSpecification:
+          Dimensions:
+            - Name: FunctionName
+              Value: !Ref SoapFunction
+            - Name: Resource
+              Value: !Sub "${SoapFunction}:live"
+          MetricName: ProvisionedConcurrencyUtilization
+          Namespace: AWS/Lambda
+          Statistic: Maximum
+          Unit: Count
+
+Outputs:
+  SoapGetCountryApi:
+    Description: "API Gateway endpoint URL for Prod stage for Soap API function"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/v1/country"

@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "springboot-soap"
+resolve_s3 = true
+s3_prefix = "springboot-soap"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = ["SoapFunction=584518143473.dkr.ecr.us-west-2.amazonaws.com/springbootsoap884f821a/soapfunction883536e3repo"]
