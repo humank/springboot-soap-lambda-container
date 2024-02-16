@@ -47,6 +47,16 @@ The aws-lambda-adapter is the proxy layer of the container
 which is responsible to handle the request/response to the soap application container runtime.
 For more introduction, you may refer to (https://github.com/awslabs/aws-lambda-web-adapter)
 
+Build the docker image
+```shell
+
+docker build -t springboot-soap:latest .
+```
+Make sure that you can find out the built image via 
+```shell
+docker images
+```
+
 Run the docker image locally
 
 ```shell
